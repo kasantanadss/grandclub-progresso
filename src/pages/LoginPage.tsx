@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
 import { LogIn, UserPlus } from 'lucide-react';
 import { toast } from 'sonner';
+import logo from '@/assets/logo.png'
 
 const LoginPage = () => {
   const { signIn } = useAuth();
@@ -43,12 +44,8 @@ const LoginPage = () => {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-sm"
       >
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-2xl gradient-gold flex items-center justify-center mx-auto mb-4">
-            <span className="font-display font-bold text-xl text-accent-foreground">GC</span>
-          </div>
-          <h1 className="font-display font-bold text-2xl">Grand Club</h1>
-          <p className="text-muted-foreground text-sm mt-1">Jardim Botânico — Sorteio de Vagas</p>
+        <div className="text-center mb-8">         
+            <img src={logo} alt="" />         
         </div>
 
         <form onSubmit={handleSubmit} className="bg-card rounded-xl p-6 shadow-card space-y-4">
