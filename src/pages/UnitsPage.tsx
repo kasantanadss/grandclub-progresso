@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useLotteryStore } from '@/store/useLotteryStore';
 import type { Unit, FinancialStatus, PresenceStatus } from '@/types/lottery';
-import { Plus, Trash2, Edit2, Check, X, Upload } from 'lucide-react';
+import { Plus, Trash2, Edit2, Check, X } from 'lucide-react';
+import { PdfImport } from '@/components/PdfImport';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -86,7 +87,10 @@ const UnitsPage = () => {
         ))}
       </div>
 
-      {/* Form */}
+      {/* PDF/CSV Import */}
+      <PdfImport />
+
+
       <AnimatePresence>
         {showForm && (
           <motion.div
