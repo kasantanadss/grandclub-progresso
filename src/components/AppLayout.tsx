@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Home, Car, ParkingCircle, Shuffle, Menu, X, LogOut, ClipboardCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
+import logo from '@/assets/logo.png'
 
 const adminNavItems = [
   { to: '/', label: 'Painel', icon: Home },
@@ -26,8 +27,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen flex flex-col">
       <header className="gradient-navy text-primary-foreground px-4 lg:px-8 py-3 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg gradient-gold flex items-center justify-center">
-            <span className="font-display font-bold text-sm text-accent-foreground">GC</span>
+          <div className="w-40 rounded-lg flex items-center justify-center p-2 bg-white">
+            <img src={logo} alt="" />
           </div>
           <div>
             <h1 className="font-display font-bold text-base leading-tight">Grand Club</h1>

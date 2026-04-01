@@ -9,44 +9,44 @@ interface LotteryStore {
   drawPhase: 'idle' | 'pcd' | 'moto' | 'main' | 'complete';
   currentDrawIndex: number;
 
-  addUnit: (unit: Unit) => void;
-  updateUnit: (id: string, data: Partial<Unit>) => void;
+  addUnit: (unidade: Unit) => void;
+  updateUnit: (id: string, dados: Partial<Unit>) => void;
   removeUnit: (id: string) => void;
 
-  addSpot: (spot: ParkingSpot) => void;
-  updateSpot: (id: string, data: Partial<ParkingSpot>) => void;
+  addSpot: (vaga: ParkingSpot) => void;
+  updateSpot: (id: string, dados: Partial<ParkingSpot>) => void;
   removeSpot: (id: string) => void;
 
   generateDrawOrder: () => void;
   advanceDraw: () => void;
-  assignSpot: (unitId: string, spotId: string) => void;
-  markAbsent: (unitId: string) => void;
+  assignSpot: (unidadeId: string, vagaId: string) => void;
+  markAbsent: (unidadeId: string) => void;
   resetDraw: () => void;
-  setDrawPhase: (phase: 'idle' | 'pcd' | 'moto' | 'main' | 'complete') => void;
+  setDrawPhase: (fase: 'idle' | 'pcd' | 'moto' | 'main' | 'complete') => void;
 }
 
-function classifyUnit(unit: Unit): DrawGroup {
-  const { financialStatus, presence, numberOfSpots, hadDoubleSpotLastDraw } = unit;
-  const isPresent = presence === 'presente';
-  const hadDouble = numberOfSpots === 1 && hadDoubleSpotLastDraw;
+function classificarUnidade(unidade: Unit): DrawGroup {
+  const { financialStatus, presence, numberOfSpots, hadDoubleSpotLastDraw } = unidade;
+  const estaPresente = presence === 'presente';
+  const teveVagaDupla = numberOfSpots === 1 && hadDoubleSpotLastDraw;
 
   if (financialStatus === 'adimplente') {
-    if (isPresent) return hadDouble ? 1 : 2;
-    return hadDouble ? 3 : 4;
+    if (estaPresente) return teveVagaDupla ? 1 : 2;
+    return teveVagaDupla ? 3 : 4;
   }
   if (financialStatus === 'acordo') {
-    return isPresent ? 5 : 6;
+    return estaPresente ? 5 : 6;
   }
-  return isPresent ? 7 : 8;
+  return estaPresente ? 7 : 8;
 }
 
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+function embaralhar<T>(lista: T[]): T[] {
+  const copia = [...lista];
+  for (let indice = copia.length - 1; indice > 0; indice--) {
+    const indiceAleatorio = Math.floor(Math.random() * (indice + 1));
+    [copia[indice], copia[indiceAleatorio]] = [copia[indiceAleatorio], copia[indice]];
   }
-  return a;
+  return copia;
 }
 
 export const useLotteryStore = create<LotteryStore>()(
@@ -58,89 +58,89 @@ export const useLotteryStore = create<LotteryStore>()(
       drawPhase: 'idle',
       currentDrawIndex: 0,
 
-      addUnit: (unit) => set((s) => ({ units: [...s.units, unit] })),
-      updateUnit: (id, data) =>
-        set((s) => ({ units: s.units.map((u) => (u.id === id ? { ...u, ...data } : u)) })),
-      removeUnit: (id) => set((s) => ({ units: s.units.filter((u) => u.id !== id) })),
+      addUnit: (unidade) => set((estado) => ({ units: [...estado.units, unidade] })),
+      updateUnit: (id, dados) =>
+        set((estado) => ({ units: estado.units.map((unidade) => (unidade.id === id ? { ...unidade, ...dados } : unidade)) })),
+      removeUnit: (id) => set((estado) => ({ units: estado.units.filter((unidade) => unidade.id !== id) })),
 
-      addSpot: (spot) => set((s) => ({ spots: [...s.spots, spot] })),
-      updateSpot: (id, data) =>
-        set((s) => ({ spots: s.spots.map((sp) => (sp.id === id ? { ...sp, ...data } : sp)) })),
-      removeSpot: (id) => set((s) => ({ spots: s.spots.filter((sp) => sp.id !== id) })),
+      addSpot: (vaga) => set((estado) => ({ spots: [...estado.spots, vaga] })),
+      updateSpot: (id, dados) =>
+        set((estado) => ({ spots: estado.spots.map((vaga) => (vaga.id === id ? { ...vaga, ...dados } : vaga)) })),
+      removeSpot: (id) => set((estado) => ({ spots: estado.spots.filter((vaga) => vaga.id !== id) })),
 
       generateDrawOrder: () => {
         const { units } = get();
-        const eligible = units.filter((u) => !u.isPCD);
-        const grouped = new Map<DrawGroup, Unit[]>();
-        for (let g = 1; g <= 8; g++) grouped.set(g as DrawGroup, []);
-        eligible.forEach((u) => {
-          const g = classifyUnit(u);
-          grouped.get(g)!.push(u);
+        const unidadesElegiveis = units.filter((unidade) => !unidade.isPCD);
+        const grupos = new Map<DrawGroup, Unit[]>();
+        for (let grupo = 1; grupo <= 8; grupo++) grupos.set(grupo as DrawGroup, []);
+        unidadesElegiveis.forEach((unidade) => {
+          const grupo = classificarUnidade(unidade);
+          grupos.get(grupo)!.push(unidade);
         });
 
-        const entries: DrawEntry[] = [];
-        let order = 0;
-        for (let g = 1; g <= 8; g++) {
-          const shuffled = shuffle(grouped.get(g as DrawGroup)!);
-          shuffled.forEach((u) => {
-            entries.push({ unitId: u.id, group: g as DrawGroup, order: order++, drawn: false, skipped: false });
+        const entradas: DrawEntry[] = [];
+        let ordem = 0;
+        for (let grupo = 1; grupo <= 8; grupo++) {
+          const unidadesEmbaralhadas = embaralhar(grupos.get(grupo as DrawGroup)!);
+          unidadesEmbaralhadas.forEach((unidade) => {
+            entradas.push({ unitId: unidade.id, group: grupo as DrawGroup, order: ordem++, drawn: false, skipped: false });
           });
         }
-        set({ drawEntries: entries, currentDrawIndex: 0, drawPhase: 'main' });
+        set({ drawEntries: entradas, currentDrawIndex: 0, drawPhase: 'main' });
       },
 
       advanceDraw: () => {
         const { currentDrawIndex, drawEntries } = get();
-        const next = currentDrawIndex + 1;
-        if (next >= drawEntries.length) {
+        const proximoIndice = currentDrawIndex + 1;
+        if (proximoIndice >= drawEntries.length) {
           set({ drawPhase: 'complete' });
         } else {
-          set({ currentDrawIndex: next });
+          set({ currentDrawIndex: proximoIndice });
         }
       },
 
-      assignSpot: (unitId, spotId) => {
-        set((s) => ({
-          units: s.units.map((u) => (u.id === unitId ? { ...u, assignedSpotId: spotId } : u)),
-          spots: s.spots.map((sp) => (sp.id === spotId ? { ...sp, assignedUnitId: unitId } : sp)),
-          drawEntries: s.drawEntries.map((e) => (e.unitId === unitId ? { ...e, drawn: true } : e)),
+      assignSpot: (unidadeId, vagaId) => {
+        set((estado) => ({
+          units: estado.units.map((unidade) => (unidade.id === unidadeId ? { ...unidade, assignedSpotId: vagaId } : unidade)),
+          spots: estado.spots.map((vaga) => (vaga.id === vagaId ? { ...vaga, assignedUnitId: unidadeId } : vaga)),
+          drawEntries: estado.drawEntries.map((entrada) => (entrada.unitId === unidadeId ? { ...entrada, drawn: true } : entrada)),
         }));
       },
 
-      markAbsent: (unitId) => {
+      markAbsent: (unidadeId) => {
         const { drawEntries, units } = get();
-        const unit = units.find((u) => u.id === unitId);
-        if (!unit) return;
+        const unidade = units.find((item) => item.id === unidadeId);
+        if (!unidade) return;
 
-        const updatedUnit = { ...unit, presence: 'ausente' as const };
-        const newGroup = classifyUnit(updatedUnit);
+        const unidadeAtualizada = { ...unidade, presence: 'ausente' as const };
+        const novoGrupo = classificarUnidade(unidadeAtualizada);
 
-        const currentEntry = drawEntries.find((e) => e.unitId === unitId);
-        if (!currentEntry) return;
+        const entradaAtual = drawEntries.find((entrada) => entrada.unitId === unidadeId);
+        if (!entradaAtual) return;
 
-        const filtered = drawEntries.filter((e) => e.unitId !== unitId);
-        // Find last entry in the new group to insert after
-        let insertIdx = filtered.length;
-        for (let i = filtered.length - 1; i >= 0; i--) {
-          if (filtered[i].group <= newGroup) {
-            insertIdx = i + 1;
+        const entradasFiltradas = drawEntries.filter((entrada) => entrada.unitId !== unidadeId);
+        // Encontra a ultima entrada do novo grupo para reinserir a unidade na posicao correta.
+        let indiceInsercao = entradasFiltradas.length;
+        for (let indice = entradasFiltradas.length - 1; indice >= 0; indice--) {
+          if (entradasFiltradas[indice].group <= novoGrupo) {
+            indiceInsercao = indice + 1;
             break;
           }
         }
-        const newEntry: DrawEntry = { ...currentEntry, group: newGroup, skipped: true };
-        filtered.splice(insertIdx, 0, newEntry);
+        const novaEntrada: DrawEntry = { ...entradaAtual, group: novoGrupo, skipped: true };
+        entradasFiltradas.splice(indiceInsercao, 0, novaEntrada);
 
-        // Re-number
-        filtered.forEach((e, i) => (e.order = i));
+        // Recalcula a ordem apos a reinsercao da unidade.
+        entradasFiltradas.forEach((entrada, indice) => (entrada.order = indice));
 
         set({
-          units: units.map((u) => (u.id === unitId ? updatedUnit : u)),
-          drawEntries: filtered,
+          units: units.map((item) => (item.id === unidadeId ? unidadeAtualizada : item)),
+          drawEntries: entradasFiltradas,
         });
       },
 
       resetDraw: () => set({ drawEntries: [], currentDrawIndex: 0, drawPhase: 'idle' }),
-      setDrawPhase: (phase) => set({ drawPhase: phase }),
+      setDrawPhase: (fase) => set({ drawPhase: fase }),
     }),
     { name: 'grand-club-lottery' }
   )
