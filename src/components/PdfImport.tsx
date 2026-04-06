@@ -40,6 +40,12 @@ type PdfWord = {
   width: number;
 };
 
+type PdfTextLikeItem = {
+  str?: string;
+  transform?: number[];
+  width?: number;
+};
+
 const EMPTY_PREVIEW: ParsedRow[] = [];
 
 const COLUMN_ALIASES: Record<ColumnKey, string[]> = {
@@ -348,13 +354,14 @@ async function extractPdfStructured(file: File): Promise<StructuredExtraction> {
     const content = await page.getTextContent();
 
     const words: PdfWord[] = content.items
-      .map((item: any) => {
-        if (!('str' in item)) return null;
+      .map((item: unknown) => {
+        if (typeof item !== 'object' || item === null || !('str' in item)) return null;
+        const pdfItem = item as PdfTextLikeItem;
         return {
-          text: item.str ?? '',
-          x: item.transform?.[4] ?? 0,
-          y: item.transform?.[5] ?? 0,
-          width: item.width ?? 0,
+          text: pdfItem.str ?? '',
+          x: pdfItem.transform?.[4] ?? 0,
+          y: pdfItem.transform?.[5] ?? 0,
+          width: pdfItem.width ?? 0,
         };
       })
       .filter((item: PdfWord | null): item is PdfWord => Boolean(item) && Boolean(item.text.trim()));
@@ -494,7 +501,7 @@ export function PdfImport() {
 
     try {
       const structured = await extractStructuredData(file);
-      const normalizedText = structured.rawText.replace(/\u0000/g, ' ').trim();
+      const normalizedText = structured.rawText.split('\0').join(' ').trim();
       const rows =
         parseStructuredRows(structured.rows).length > 0
           ? parseStructuredRows(structured.rows)
