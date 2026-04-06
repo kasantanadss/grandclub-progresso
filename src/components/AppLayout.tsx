@@ -20,7 +20,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="gradient-navy text-primary-foreground px-4 lg:px-8 py-3 flex items-center justify-between sticky top-0 z-50">
+      <header className="gradient-navy text-zinc-50 px-4 lg:px-8 py-3 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-3">
           <div className="w-40 rounded-lg flex items-center justify-center p-2 bg-white">
             <img src={logo} alt="" />
@@ -42,7 +42,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                     active
                       ? 'bg-white/15 text-primary-foreground'
-                      : 'text-primary-foreground/60 hover:text-primary-foreground hover:bg-white/10'
+                      : 'text-primary-foreground/60 hover:text-primary-foreground hover:bg-white/20'
                   }`}
                 >
                   <item.icon className="w-4 h-4" />
