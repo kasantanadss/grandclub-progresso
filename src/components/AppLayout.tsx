@@ -3,25 +3,20 @@ import { Link, useLocation } from 'react-router-dom';
 import { Home, Car, ParkingCircle, Shuffle, Menu, X, LogOut, ClipboardCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
-import logo from '@/assets/logo.png'
+import logo from '@/assets/logo.png';
 
-const adminNavItems = [
+const navItems = [
   { to: '/', label: 'Painel', icon: Home },
   { to: '/unidades', label: 'Unidades', icon: Car },
   { to: '/vagas', label: 'Vagas', icon: ParkingCircle },
   { to: '/sorteio', label: 'Sorteio', icon: Shuffle },
-];
-
-const portariaNavItems = [
-  { to: '/', label: 'Check-in', icon: ClipboardCheck },
+  { to: '/portaria', label: 'Portaria', icon: ClipboardCheck },
 ];
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { role, signOut, user } = useAuth();
-
-  const navItems = role === 'portaria' ? portariaNavItems : adminNavItems;
+  const { signOut, user } = useAuth();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -32,9 +27,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
           <div>
             <h1 className="font-display font-bold text-base leading-tight">Grand Club</h1>
-            <p className="text-xs opacity-70">
-              {role === 'portaria' ? 'Portaria — Check-in' : 'Jardim Botânico — Sorteio de Vagas'}
-            </p>
+            <p className="text-xs opacity-70">Gestão local de vagas e sorteio</p>
           </div>
         </div>
 
@@ -63,7 +56,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             className="ml-4 flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-primary-foreground/60 hover:text-primary-foreground hover:bg-white/10 transition-all"
           >
             <LogOut className="w-4 h-4" />
-            Sair
+            {user?.email ?? 'Sair'}
           </button>
         </div>
 
@@ -100,7 +93,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               );
             })}
             <button
-              onClick={() => { signOut(); setMobileOpen(false); }}
+              onClick={() => {
+                signOut();
+                setMobileOpen(false);
+              }}
               className="flex items-center gap-3 px-6 py-3 text-sm font-medium text-primary-foreground/60 w-full"
             >
               <LogOut className="w-4 h-4" />

@@ -1,79 +1,120 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import type { User, Session } from '@supabase/supabase-js';
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
-type AppRole = 'admin' | 'portaria';
+type LocalUser = {
+  id: string;
+  email: string;
+};
+
+type StoredAccount = {
+  id: string;
+  email: string;
+  password: string;
+};
 
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
-  role: AppRole | null;
+  user: LocalUser | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
 
+const ACCOUNTS_STORAGE_KEY = 'grand-club-local-auth-accounts';
+const SESSION_STORAGE_KEY = 'grand-club-local-auth-session';
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function readAccounts() {
+  const raw = localStorage.getItem(ACCOUNTS_STORAGE_KEY);
+  if (!raw) return [] as StoredAccount[];
+
+  try {
+    const parsed = JSON.parse(raw) as StoredAccount[];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeAccounts(accounts: StoredAccount[]) {
+  localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(accounts));
+}
+
+function readSession() {
+  const raw = localStorage.getItem(SESSION_STORAGE_KEY);
+  if (!raw) return null;
+
+  try {
+    return JSON.parse(raw) as LocalUser;
+  } catch {
+    return null;
+  }
+}
+
+function writeSession(user: LocalUser | null) {
+  if (!user) {
+    localStorage.removeItem(SESSION_STORAGE_KEY);
+    return;
+  }
+
+  localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(user));
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [role, setRole] = useState<AppRole | null>(null);
+  const [user, setUser] = useState<LocalUser | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchRole = async (userId: string) => {
-    const { data } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId)
-      .maybeSingle();
-    setRole(data?.role ?? null);
-  };
-
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          // Use setTimeout to avoid Supabase deadlock
-          setTimeout(() => fetchRole(session.user.id), 0);
-        } else {
-          setRole(null);
-        }
-        setLoading(false);
-      }
-    );
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchRole(session.user.id);
-      }
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    setUser(readSession());
+    setLoading(false);
   }, []);
 
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error: error ? new Error(error.message) : null };
-  };
+  const value = useMemo<AuthContextType>(
+    () => ({
+      user,
+      loading,
+      signIn: async (email, password) => {
+        const normalizedEmail = email.trim().toLowerCase();
+        const account = readAccounts().find((item) => item.email === normalizedEmail);
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setSession(null);
-    setRole(null);
-  };
+        if (!account || account.password !== password) {
+          return { error: new Error('E-mail ou senha inválidos.') };
+        }
 
-  return (
-    <AuthContext.Provider value={{ user, session, role, loading, signIn, signOut }}>
-      {children}
-    </AuthContext.Provider>
+        const nextUser = { id: account.id, email: account.email };
+        setUser(nextUser);
+        writeSession(nextUser);
+        return { error: null };
+      },
+      signUp: async (email, password) => {
+        const normalizedEmail = email.trim().toLowerCase();
+        const accounts = readAccounts();
+
+        if (accounts.some((item) => item.email === normalizedEmail)) {
+          return { error: new Error('Já existe uma conta com esse e-mail neste navegador.') };
+        }
+
+        const account: StoredAccount = {
+          id: crypto.randomUUID(),
+          email: normalizedEmail,
+          password,
+        };
+
+        writeAccounts([...accounts, account]);
+        const nextUser = { id: account.id, email: account.email };
+        setUser(nextUser);
+        writeSession(nextUser);
+        return { error: null };
+      },
+      signOut: async () => {
+        setUser(null);
+        writeSession(null);
+      },
+    }),
+    [user, loading]
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

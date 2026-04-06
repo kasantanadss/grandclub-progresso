@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
@@ -9,7 +8,7 @@ import { toast } from 'sonner';
 import logo from '@/assets/logo.png'
 
 const LoginPage = () => {
-  const { signIn } = useAuth();
+  const { signIn, signUp } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -26,13 +25,11 @@ const LoginPage = () => {
     setLoading(true);
 
     if (mode === 'signup') {
-      const { error } = await supabase.auth.signUp({ email: email.trim().toLowerCase(), password });
+      const { error } = await signUp(email.trim().toLowerCase(), password);
       if (error) {
         setError(error.message);
       } else {
-        toast.success('Conta criada! Fazendo login...');
-        // Auto-login after signup (auto-confirm is on)
-        await signIn(email.trim().toLowerCase(), password);
+        toast.success('Conta criada neste navegador.');
       }
     } else {
       const { error } = await signIn(email.trim().toLowerCase(), password);
