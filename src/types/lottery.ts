@@ -4,13 +4,13 @@ export type PresenceStatus = 'presente' | 'ausente';
 
 export interface Unit {
   id: string;
+  block?: string;
   apartment: string;
   ownerName: string;
   numberOfSpots: 1 | 2;
   rentsSecondSpot: boolean;
   financialStatus: FinancialStatus;
   presence: PresenceStatus;
-  isPCD: boolean;
   hadDoubleSpotLastDraw: boolean;
   requestedMotoSpot: boolean;
   assignedSpotId?: string;
@@ -22,7 +22,6 @@ export interface ParkingSpot {
   label: string;
   type: SpotType;
   assignedUnitId?: string;
-  isPCDReserved: boolean;
 }
 
 export type DrawGroup = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
@@ -38,7 +37,7 @@ export interface DrawEntry {
 export interface DrawState {
   entries: DrawEntry[];
   currentIndex: number;
-  phase: 'idle' | 'pcd' | 'moto' | 'main' | 'complete';
+  phase: 'idle' | 'moto' | 'main' | 'complete';
 }
 
 export const GROUP_LABELS: Record<DrawGroup, string> = {

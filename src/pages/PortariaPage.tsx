@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import type { FinancialStatus } from '@/types/lottery';
+import { formatUnitLabel } from '@/lib/utils';
 
 const statusColors: Record<FinancialStatus, string> = {
   adimplente: 'bg-success/10 text-success border-success/20',
@@ -23,6 +24,7 @@ const PortariaPage = () => {
   const [search, setSearch] = useState('');
 
   const filtered = units.filter((u) =>
+    (u.block ?? '').toLowerCase().includes(search.toLowerCase()) ||
     u.apartment.toLowerCase().includes(search.toLowerCase()) ||
     u.ownerName.toLowerCase().includes(search.toLowerCase())
   );
@@ -59,7 +61,7 @@ const PortariaPage = () => {
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Buscar por apartamento ou nome..."
+          placeholder="Buscar por bloco, apartamento ou nome..."
           className="pl-10"
         />
       </div>
@@ -76,7 +78,7 @@ const PortariaPage = () => {
           >
             <div className="flex items-center gap-4 min-w-0">
               <div className="w-12 h-12 rounded-lg gradient-navy flex items-center justify-center shrink-0">
-                <span className="text-primary-foreground font-display font-bold text-sm">{unit.apartment}</span>
+                <span className="text-primary-foreground font-display font-bold text-sm">{formatUnitLabel(unit)}</span>
               </div>
               <div className="min-w-0">
                 <p className="font-display font-semibold truncate">{unit.ownerName}</p>

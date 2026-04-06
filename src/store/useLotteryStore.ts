@@ -6,7 +6,7 @@ interface LotteryStore {
   units: Unit[];
   spots: ParkingSpot[];
   drawEntries: DrawEntry[];
-  drawPhase: 'idle' | 'pcd' | 'moto' | 'main' | 'complete';
+  drawPhase: 'idle' | 'moto' | 'main' | 'complete';
   currentDrawIndex: number;
 
   addUnit: (unidade: Unit) => void;
@@ -22,7 +22,7 @@ interface LotteryStore {
   assignSpot: (unidadeId: string, vagaId: string) => void;
   markAbsent: (unidadeId: string) => void;
   resetDraw: () => void;
-  setDrawPhase: (fase: 'idle' | 'pcd' | 'moto' | 'main' | 'complete') => void;
+  setDrawPhase: (fase: 'idle' | 'moto' | 'main' | 'complete') => void;
 }
 
 function classificarUnidade(unidade: Unit): DrawGroup {
@@ -70,10 +70,9 @@ export const useLotteryStore = create<LotteryStore>()(
 
       generateDrawOrder: () => {
         const { units } = get();
-        const unidadesElegiveis = units.filter((unidade) => !unidade.isPCD);
         const grupos = new Map<DrawGroup, Unit[]>();
         for (let grupo = 1; grupo <= 8; grupo++) grupos.set(grupo as DrawGroup, []);
-        unidadesElegiveis.forEach((unidade) => {
+        units.forEach((unidade) => {
           const grupo = classificarUnidade(unidade);
           grupos.get(grupo)!.push(unidade);
         });
@@ -142,6 +141,6 @@ export const useLotteryStore = create<LotteryStore>()(
       resetDraw: () => set({ drawEntries: [], currentDrawIndex: 0, drawPhase: 'idle' }),
       setDrawPhase: (fase) => set({ drawPhase: fase }),
     }),
-    { name: 'grand-club-lottery' }
+    { name: 'grand-club-lottery-v2' }
   )
 );

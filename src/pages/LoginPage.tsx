@@ -16,22 +16,26 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<'login' | 'signup'>('login');
 
+  const handleEmailChange = (value: string) => {
+    setEmail(value.trim().toLowerCase());
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     if (mode === 'signup') {
-      const { error } = await supabase.auth.signUp({ email, password });
+      const { error } = await supabase.auth.signUp({ email: email.trim().toLowerCase(), password });
       if (error) {
         setError(error.message);
       } else {
         toast.success('Conta criada! Fazendo login...');
         // Auto-login after signup (auto-confirm is on)
-        await signIn(email, password);
+        await signIn(email.trim().toLowerCase(), password);
       }
     } else {
-      const { error } = await signIn(email, password);
+      const { error } = await signIn(email.trim().toLowerCase(), password);
       if (error) setError(error.message);
     }
     setLoading(false);
@@ -51,7 +55,7 @@ const LoginPage = () => {
         <form onSubmit={handleSubmit} className="bg-card rounded-xl p-6 shadow-card space-y-4">
           <div>
             <label className="text-sm font-medium mb-1 block">E-mail</label>
-            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com" required />
+            <Input type="email" value={email} onChange={(e) => handleEmailChange(e.target.value)} placeholder="seu@email.com" required />
           </div>
           <div>
             <label className="text-sm font-medium mb-1 block">Senha</label>

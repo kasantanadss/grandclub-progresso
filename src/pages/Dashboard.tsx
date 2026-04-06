@@ -34,7 +34,7 @@ const Dashboard = () => {
 
   const groupCounts = new Map<DrawGroup, number>();
   for (let g = 1; g <= 8; g++) groupCounts.set(g as DrawGroup, 0);
-  units.filter(u => !u.isPCD).forEach((u) => {
+  units.forEach((u) => {
     const { financialStatus, presence, numberOfSpots, hadDoubleSpotLastDraw } = u;
     const isPresent = presence === 'presente';
     const hadDouble = numberOfSpots === 1 && hadDoubleSpotLastDraw;

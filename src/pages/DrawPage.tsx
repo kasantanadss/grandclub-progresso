@@ -5,6 +5,7 @@ import { Shuffle, ChevronRight, UserX, ParkingCircle, RotateCcw } from 'lucide-r
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { formatUnitLabel } from '@/lib/utils';
 
 const DrawPage = () => {
   const {
@@ -18,7 +19,7 @@ const DrawPage = () => {
   const currentUnit = currentEntry ? units.find((u) => u.id === currentEntry.unitId) : null;
 
   const availableSpots = spots.filter((s) => {
-    if (s.assignedUnitId || s.isPCDReserved) return false;
+    if (s.assignedUnitId) return false;
     if (!currentUnit) return true;
     // Units with 2 spots must pick dupla
     if (currentUnit.numberOfSpots === 2 || currentUnit.rentsSecondSpot) {
@@ -125,7 +126,7 @@ const DrawPage = () => {
               </div>
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-16 h-16 rounded-xl gradient-navy flex items-center justify-center">
-                  <span className="text-primary-foreground font-display font-bold text-xl">{currentUnit.apartment}</span>
+                  <span className="text-primary-foreground font-display font-bold text-xl">{formatUnitLabel(currentUnit)}</span>
                 </div>
                 <div>
                   <h3 className="font-display font-bold text-2xl">{currentUnit.ownerName}</h3>
@@ -196,7 +197,7 @@ const DrawPage = () => {
                     {entry.group}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <span className="font-semibold">{unit.apartment}</span>
+                    <span className="font-semibold">{formatUnitLabel(unit)}</span>
                     <span className="text-muted-foreground ml-2 truncate">{unit.ownerName}</span>
                   </div>
                   {entry.drawn && <span className="text-success text-xs">✓</span>}
