@@ -51,8 +51,10 @@ const SpotsPage = () => {
             {spots.length} vagas • {spots.filter((s) => !s.assignedUnitId).length} disponíveis
           </p>
         </div>
-        <Button onClick={() => setShowForm(true)}>
-          <Plus className="w-4 h-4 mr-2" /> Adicionar Vaga
+        <Button
+        className='bg-[#0790d4] text-zinc-50 hover:bg-[#0790d4]/90'
+         onClick={() => setShowForm(true)}>
+          <Plus className="w-4 h-4 mr-2 " /> Adicionar Vaga
         </Button>
       </div>
 
@@ -62,7 +64,7 @@ const SpotsPage = () => {
             key={f}
             onClick={() => setFilterType(f)}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
-              filterType === f ? 'gradient-navy text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              filterType === f ? 'bg-[#0790d4] text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'
             }`}
           >
             {f === 'all' ? 'Todas' : typeLabels[f]}

@@ -7,7 +7,8 @@ import { GROUP_LABELS, type DrawGroup } from '@/types/lottery';
 function StatCard({ icon: Icon, label, value, color }: { icon: React.ComponentType<{ className?: string }>; label: string; value: number | string; color: string }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      transition={{ duration: 1, ease: "easeInOut" }}
+      initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       className="bg-card rounded-xl p-5 shadow-card"
     >
@@ -57,20 +58,20 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={Car} label="Unidades Cadastradas" value={totalUnits} color="gradient-navy text-primary-foreground" />
-        <StatCard icon={Users} label="Presentes" value={presentUnits} color="bg-success text-success-foreground" />
-        <StatCard icon={ParkingCircle} label="Vagas Disponíveis" value={`${availableSpots}/${totalSpots}`} color="gradient-gold text-accent-foreground" />
-        <StatCard icon={AlertTriangle} label="Inadimplentes" value={inadimplentes} color="bg-destructive text-destructive-foreground" />
+        <StatCard icon={Car} label="Unidades Cadastradas" value={totalUnits} color="bg-cyan-500 text-zinc-50" />
+        <StatCard icon={Users} label="Presentes" value={presentUnits} color="bg-green-600 text-zinc-50" />
+        <StatCard icon={ParkingCircle} label="Vagas Disponíveis" value={`${availableSpots}/${totalSpots}`} color="bg-[#f7df78] text-zinc-500" />
+        <StatCard icon={AlertTriangle} label="Inadimplentes" value={inadimplentes} color="bg-[#db1c1f] text-zinc-50" />
       </div>
 
       {/* Groups overview */}
       <div className="bg-card rounded-xl p-6 shadow-card">
-        <h3 className="font-display font-semibold text-lg mb-4">Grupos de Prioridade</h3>
+        <h3 className="font-display font-semibold text-2xl mb-4">Grupos de Prioridade</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {([1, 2, 3, 4, 5, 6, 7, 8] as DrawGroup[]).map((g) => (
-            <div key={g} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+            <div key={g} className="flex items-center justify-between p-3 rounded-lg bg-[#ebf0f14b]">
               <div className="flex items-center gap-3">
-                <span className="w-7 h-7 rounded-full gradient-gold flex items-center justify-center text-xs font-bold text-accent-foreground">
+                <span className="w-7 h-7 rounded-full bg-[#0790d48c] flex items-center justify-center text-xs font-bold text-zinc-50">
                   {g}
                 </span>
                 <span className="text-sm font-medium">{GROUP_LABELS[g]}</span>
